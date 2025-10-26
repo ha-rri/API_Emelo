@@ -24,6 +24,17 @@ let citizens = [
 // Define the port the server will run on
 const PORT = 3000;
 
+// Simple API Key Authentication Middleware
+const apiKeyAuth = (req, res, next) => {
+    const apiKey = req.header("X-API-Key");
+    if (apiKey && apiKey === "supersecretkey123") {
+        next();
+    } else {
+        // If key is missing or invalid, send an error
+        res.status(401).json({ error: "Unauthorized: Missing or invalid API Key" });
+    }
+}
+
 // Basic homepage route
 app.get("/", (req, res) => {
   res.send("Welcome to the SecurePH API");
@@ -35,8 +46,8 @@ app.get("/api/citizens", (req, res) => {
   res.json(citizens);
 });
 
-// POST endpoint to add a new citizen
-app.post("/api/citizens", (req, res) => {
+// POST endpoint to add a new citizen with applied middleware
+app.post("/api/citizens", apiKeyAuth, (req, res) => {
   // Get the data from the request body
   const newCitizen = req.body;
 
